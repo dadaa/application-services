@@ -23,7 +23,7 @@ use sql_support::{
 ///     `clear_database()` by adding their names to `conditional_tables`, unless
 ///     they are cleared via a deletion trigger or there's some other good
 ///     reason not to do so.
-pub const VERSION: u32 = 41;
+pub const VERSION: u32 = 42;
 
 /// The current Suggest database schema.
 pub const SQL: &str = "
@@ -191,6 +191,25 @@ CREATE TABLE dynamic_custom_details(
     FOREIGN KEY(suggestion_id) REFERENCES suggestions(id) ON DELETE CASCADE
 );
 CREATE INDEX dynamic_custom_details_suggestion_type ON dynamic_custom_details(suggestion_type);
+
+CREATE TABLE realtime_custom_details(
+    suggestion_id INTEGER PRIMARY KEY,
+    -- stocks, sports etc
+    category TEXT NOT NULL,
+    id TEXT UNIQUE,
+    description TEXT NOT NULL,
+    FOREIGN KEY(suggestion_id) REFERENCES suggestions(id) ON DELETE CASCADE
+);
+
+CREATE TABLE realtime_group_custom_details(
+    suggestion_id INTEGER PRIMARY KEY,
+    -- stocks, sports etc
+    category TEXT NOT NULL,
+    description TEXT NOT NULL,
+    -- comma separated realtime(id)
+    items TEXT NOT NULL,
+    FOREIGN KEY(suggestion_id) REFERENCES suggestions(id) ON DELETE CASCADE
+);
 
 CREATE TABLE geonames(
     id INTEGER PRIMARY KEY,
@@ -771,6 +790,31 @@ impl ConnectionInitializer for SuggestConnectionInitializer<'_> {
                         ON geonames_alternates(geoname_id, language);
                     CREATE INDEX geonames_alternates_name
                         ON geonames_alternates(name);
+                    "#,
+                )?;
+                Ok(())
+            }
+            41 => {
+                tx.execute_batch(
+                    r#"
+                    CREATE TABLE realtime_custom_details(
+                        suggestion_id INTEGER PRIMARY KEY,
+                        id TEXT UNIQUE,
+                        -- stocks, sports etc
+                        category TEXT NOT NULL,
+                        FOREIGN KEY(suggestion_id) REFERENCES suggestions(id)
+                        ON DELETE CASCADE
+                    );
+
+                    CREATE TABLE realtime_group_custom_details(
+                        suggestion_id INTEGER PRIMARY KEY,
+                        -- stocks, sports etc
+                        category TEXT NOT NULL,
+                        -- comma separated realtime(id)
+                        items TEXT NOT NULL,
+                        FOREIGN KEY(suggestion_id) REFERENCES suggestions(id)
+                        ON DELETE CASCADE
+                    );
                     "#,
                 )?;
                 Ok(())

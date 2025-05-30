@@ -44,6 +44,8 @@ pub enum SuggestionProvider {
     Weather = 7,
     Fakespot = 8,
     Dynamic = 9,
+    Realtime = 10,
+    RealtimeGroup = 11,
 }
 
 impl fmt::Display for SuggestionProvider {
@@ -58,6 +60,8 @@ impl fmt::Display for SuggestionProvider {
             Self::Weather => write!(f, "weather"),
             Self::Fakespot => write!(f, "fakespot"),
             Self::Dynamic => write!(f, "dynamic"),
+            Self::Realtime => write!(f, "realtime"),
+            Self::RealtimeGroup => write!(f, "realtime-group"),
         }
     }
 }
@@ -73,7 +77,7 @@ impl FromSql for SuggestionProvider {
 }
 
 impl SuggestionProvider {
-    pub fn all() -> [Self; 9] {
+    pub fn all() -> [Self; 11] {
         [
             Self::Amp,
             Self::Wikipedia,
@@ -84,6 +88,8 @@ impl SuggestionProvider {
             Self::Weather,
             Self::Fakespot,
             Self::Dynamic,
+            Self::Realtime,
+            Self::RealtimeGroup,
         ]
     }
 
@@ -99,6 +105,8 @@ impl SuggestionProvider {
             7 => Some(Self::Weather),
             8 => Some(Self::Fakespot),
             9 => Some(Self::Dynamic),
+            10 => Some(Self::Realtime),
+            11 => Some(Self::RealtimeGroup),
             _ => None,
         }
     }
@@ -124,6 +132,8 @@ impl SuggestionProvider {
             Self::Weather => SuggestRecordType::Weather,
             Self::Fakespot => SuggestRecordType::Fakespot,
             Self::Dynamic => SuggestRecordType::Dynamic,
+            Self::Realtime => SuggestRecordType::Realtime,
+            Self::RealtimeGroup => SuggestRecordType::RealtimeGroup,
         }
     }
 
@@ -155,6 +165,14 @@ impl SuggestionProvider {
             )])),
             Self::Fakespot => Some(HashMap::from([(
                 Collection::Fakespot,
+                HashSet::from([SuggestRecordType::Icon]),
+            )])),
+            Self::Realtime => Some(HashMap::from([(
+                Collection::Other,
+                HashSet::from([SuggestRecordType::Icon]),
+            )])),
+            Self::RealtimeGroup => Some(HashMap::from([(
+                Collection::Other,
                 HashSet::from([SuggestRecordType::Icon]),
             )])),
             _ => None,

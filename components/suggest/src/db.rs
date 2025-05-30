@@ -1375,6 +1375,16 @@ impl<'a> SuggestDao<'a> {
             "DELETE FROM geonames_metrics WHERE record_id = :record_id",
             named_params! { ":record_id": record_id.as_str() },
         )?;
+        self.scope.err_if_interrupted()?;
+        self.conn.execute_cached(
+            "DELETE FROM realtime_custom_details WHERE record_id = :record_id",
+            named_params! { ":record_id": record_id.as_str() },
+        )?;
+        self.scope.err_if_interrupted()?;
+        self.conn.execute_cached(
+            "DELETE FROM realtime_group_custom_details WHERE record_id = :record_id",
+            named_params! { ":record_id": record_id.as_str() },
+        )?;
 
         // Invalidate these caches since we might have deleted a record their
         // contents are based on.

@@ -14,6 +14,7 @@ mod metrics;
 pub mod pocket;
 mod provider;
 mod query;
+mod realtime;
 mod rs;
 mod schema;
 mod store;

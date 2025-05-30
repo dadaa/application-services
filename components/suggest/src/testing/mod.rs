@@ -66,6 +66,8 @@ impl Suggestion {
             Self::Wikipedia { .. } => panic!("with_score not valid for wikipedia suggestions"),
             Self::Fakespot { score, .. } => score,
             Self::Dynamic { score, .. } => score,
+            Self::Realtime { score, .. } => score,
+            Self::RealtimeGroup { score, .. } => score,
         };
         *current_score = score;
         self

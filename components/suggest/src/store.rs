@@ -376,6 +376,8 @@ impl SuggestIngestionConstraints {
                 SuggestionProvider::Weather,
                 SuggestionProvider::Fakespot,
                 SuggestionProvider::Dynamic,
+                SuggestionProvider::Realtime,
+                SuggestionProvider::RealtimeGroup,
             ]),
             ..Self::default()
         }
@@ -457,6 +459,10 @@ impl<S> SuggestStoreInner<S> {
                     SuggestionProvider::Weather => dao.fetch_weather_suggestions(&query),
                     SuggestionProvider::Fakespot => dao.fetch_fakespot_suggestions(&query),
                     SuggestionProvider::Dynamic => dao.fetch_dynamic_suggestions(&query),
+                    SuggestionProvider::Realtime => dao.fetch_realtime_suggestions(&query),
+                    SuggestionProvider::RealtimeGroup => {
+                        dao.fetch_realtime_group_suggestions(&query)
+                    }
                 })
             })?;
             suggestions.extend(new_suggestions);
@@ -769,6 +775,16 @@ where
                         },
                     )?;
                 }
+            }
+            SuggestRecord::Realtime => {
+                self.download_attachment(dao, record, context, |dao, record_id, suggestions| {
+                    dao.insert_realtime_suggestions(record_id, suggestions)
+                })?;
+            }
+            SuggestRecord::RealtimeGroup => {
+                self.download_attachment(dao, record, context, |dao, record_id, suggestions| {
+                    dao.insert_realtime_group_suggestions(record_id, suggestions)
+                })?;
             }
             SuggestRecord::Geonames => self.process_geonames_record(dao, record, context)?,
             SuggestRecord::GeonamesAlternates => {
@@ -1756,7 +1772,17 @@ pub(crate) mod tests {
                 .with_record(SuggestionProvider::Wikipedia.icon(california_icon()))
                 .with_record(SuggestionProvider::Wikipedia.icon(caltech_icon()))
                 .with_record(SuggestionProvider::Yelp.icon(yelp_favicon()))
-                .with_record(SuggestionProvider::Wikipedia.icon(multimatch_wiki_icon())),
+                .with_record(SuggestionProvider::Wikipedia.icon(multimatch_wiki_icon()))
+                .with_record(SuggestionProvider::Realtime.record(
+                    "data-6",
+                    json!([stock_sp500(), stock_nasdaq(), stock_apple(),]),
+                ))
+                .with_record(
+                    SuggestionProvider::RealtimeGroup
+                        .record("data-7", json!([stock_group_top_indices(),])),
+                )
+                .with_record(SuggestionProvider::Realtime.icon(yelp_favicon()))
+                .with_record(SuggestionProvider::RealtimeGroup.icon(yelp_favicon())),
         );
 
         store.ingest(SuggestIngestionConstraints::all_providers());
@@ -2262,6 +2288,20 @@ pub(crate) mod tests {
                     .subject_exact_match(false)
                     .subject_type(YelpSubjectType::Business)
             ]
+        );
+        // Realtime suggestoins.
+        assert_eq!(
+            store.fetch_suggestions(SuggestionQuery::yelp("sp500")),
+            vec![stock_suggestion(
+                "sp500",
+                "S&P 500",
+                "S&P 500 desciption",
+                "https://example.com/merino/stocks/sp500"
+            )]
+        );
+        assert_eq!(
+            store.fetch_suggestions(SuggestionQuery::yelp("stocks")),
+            vec![]
         );
 
         Ok(())

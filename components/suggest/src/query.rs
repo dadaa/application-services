@@ -131,6 +131,22 @@ impl SuggestionQuery {
         }
     }
 
+    pub fn realtime(keyword: &str) -> Self {
+        Self {
+            keyword: keyword.into(),
+            providers: vec![SuggestionProvider::Realtime],
+            ..Self::default()
+        }
+    }
+
+    pub fn realtime_group(keyword: &str) -> Self {
+        Self {
+            keyword: keyword.into(),
+            providers: vec![SuggestionProvider::RealtimeGroup],
+            ..Self::default()
+        }
+    }
+
     pub fn limit(self, limit: i32) -> Self {
         Self {
             limit: Some(limit),

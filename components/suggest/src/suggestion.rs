@@ -114,6 +114,26 @@ pub enum Suggestion {
         dismissal_key: Option<String>,
         score: f64,
     },
+    Realtime {
+        title: String,
+        url: String,
+        description: String,
+        score: f64,
+        id: String,
+        category: String,
+        icon: Option<Vec<u8>>,
+        icon_mimetype: Option<String>,
+    },
+    RealtimeGroup {
+        title: String,
+        url: String,
+        description: String,
+        score: f64,
+        category: String,
+        items: Vec<String>,
+        icon: Option<Vec<u8>>,
+        icon_mimetype: Option<String>,
+    },
 }
 
 /// Additional data about how an FTS match was made
@@ -160,7 +180,9 @@ impl Suggestion {
             | Self::Yelp { .. }
             | Self::Mdn { .. }
             | Self::Weather { .. }
-            | Self::Fakespot { .. } => self.raw_url(),
+            | Self::Fakespot { .. }
+            | Self::Realtime { .. }
+            | Self::RealtimeGroup { .. } => self.raw_url(),
         }
     }
 
@@ -173,7 +195,9 @@ impl Suggestion {
             | Self::Amo { url, .. }
             | Self::Yelp { url, .. }
             | Self::Mdn { url, .. }
-            | Self::Fakespot { url, .. } => Some(url),
+            | Self::Fakespot { url, .. }
+            | Self::Realtime { url, .. }
+            | Self::RealtimeGroup { url, .. } => Some(url),
             Self::Weather { .. } | Self::Dynamic { .. } => None,
         }
     }
@@ -192,7 +216,9 @@ impl Suggestion {
             | Self::Mdn { .. }
             | Self::Weather { .. }
             | Self::Fakespot { .. }
-            | Self::Dynamic { .. } => self.url(),
+            | Self::Dynamic { .. }
+            | Self::Realtime { .. }
+            | Self::RealtimeGroup { .. } => self.url(),
         }
     }
 
@@ -204,7 +230,9 @@ impl Suggestion {
             | Self::Amo { title, .. }
             | Self::Yelp { title, .. }
             | Self::Mdn { title, .. }
-            | Self::Fakespot { title, .. } => title,
+            | Self::Fakespot { title, .. }
+            | Self::Realtime { title, .. }
+            | Self::RealtimeGroup { title, .. } => title,
             _ => "untitled",
         }
     }
@@ -214,7 +242,9 @@ impl Suggestion {
             Self::Amp { icon, .. }
             | Self::Wikipedia { icon, .. }
             | Self::Yelp { icon, .. }
-            | Self::Fakespot { icon, .. } => icon.as_deref(),
+            | Self::Fakespot { icon, .. }
+            | Self::Realtime { icon, .. }
+            | Self::RealtimeGroup { icon, .. } => icon.as_deref(),
             _ => None,
         }
     }
@@ -228,7 +258,9 @@ impl Suggestion {
             | Self::Mdn { score, .. }
             | Self::Weather { score, .. }
             | Self::Fakespot { score, .. }
-            | Self::Dynamic { score, .. } => *score,
+            | Self::Dynamic { score, .. }
+            | Self::Realtime { score, .. }
+            | Self::RealtimeGroup { score, .. } => *score,
             Self::Wikipedia { .. } => DEFAULT_SUGGESTION_SCORE,
         }
     }

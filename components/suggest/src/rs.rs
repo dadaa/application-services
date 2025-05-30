@@ -200,6 +200,10 @@ pub(crate) enum SuggestRecord {
     Fakespot,
     #[serde(rename = "dynamic-suggestions")]
     Dynamic(DownloadedDynamicRecord),
+    #[serde(rename = "realtime-suggestions")]
+    Realtime,
+    #[serde(rename = "realtime-group-suggestions")]
+    RealtimeGroup,
     #[serde(rename = "geonames-2")] // version 2
     Geonames,
     #[serde(rename = "geonames-alternates")]
@@ -231,6 +235,8 @@ pub enum SuggestRecordType {
     GlobalConfig,
     Fakespot,
     Dynamic,
+    Realtime,
+    RealtimeGroup,
     Geonames,
     GeonamesAlternates,
 }
@@ -249,6 +255,8 @@ impl From<&SuggestRecord> for SuggestRecordType {
             SuggestRecord::GlobalConfig(_) => Self::GlobalConfig,
             SuggestRecord::Fakespot => Self::Fakespot,
             SuggestRecord::Dynamic(_) => Self::Dynamic,
+            SuggestRecord::Realtime => Self::Realtime,
+            SuggestRecord::RealtimeGroup => Self::RealtimeGroup,
             SuggestRecord::Geonames => Self::Geonames,
             SuggestRecord::GeonamesAlternates => Self::GeonamesAlternates,
         }
@@ -285,6 +293,8 @@ impl SuggestRecordType {
             Self::GlobalConfig,
             Self::Fakespot,
             Self::Dynamic,
+            Self::Realtime,
+            Self::RealtimeGroup,
             Self::Geonames,
             Self::GeonamesAlternates,
         ]
@@ -303,6 +313,8 @@ impl SuggestRecordType {
             Self::GlobalConfig => "configuration",
             Self::Fakespot => "fakespot-suggestions",
             Self::Dynamic => "dynamic-suggestions",
+            Self::Realtime => "realtime-suggestions",
+            Self::RealtimeGroup => "realtime-group-suggestions",
             Self::Geonames => "geonames-2",
             Self::GeonamesAlternates => "geonames-alternates",
         }
@@ -550,6 +562,30 @@ impl DownloadedDynamicSuggestion {
     pub fn keywords(&self) -> impl Iterator<Item = String> + '_ {
         self.keywords.iter().flat_map(|e| e.keywords())
     }
+}
+
+/// A Realtime suggestion to ingest from an attachment
+#[derive(Clone, Debug, Deserialize)]
+pub(crate) struct DownloadedRealtimeSuggestion {
+    pub url: String,
+    pub title: String,
+    pub description: String,
+    pub score: f64,
+    pub id: String,
+    pub category: String,
+    pub keywords: Vec<String>,
+}
+
+/// A RealtimeGroup suggestion to ingest from an attachment
+#[derive(Clone, Debug, Deserialize)]
+pub(crate) struct DownloadedRealtimeGroupSuggestion {
+    pub url: String,
+    pub title: String,
+    pub description: String,
+    pub score: f64,
+    pub category: String,
+    pub items: Vec<String>,
+    pub keywords: Vec<String>,
 }
 
 /// A single full keyword or a `(prefix, suffixes)` tuple representing multiple

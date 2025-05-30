@@ -500,3 +500,65 @@ pub fn fakespot_amazon_icon() -> MockIcon {
         mimetype: "image/png",
     }
 }
+
+// Realtime suggestions test data
+pub fn stock_sp500() -> JsonValue {
+    json!({
+        "category": "stocks",
+        "id": "sp500",
+        "title": "S&P 500",
+        "description": "S&P 500 desciption",
+        "url": "https://example.com/merino/stocks/sp500",
+        "keywords": ["sp500", "S&P 500"],
+        "score": 0.24
+    })
+}
+
+pub fn stock_nasdaq() -> JsonValue {
+    json!({
+        "category": "stocks",
+        "id": "nasdaq",
+        "title": "NASDAQ",
+        "description": "NASDAQ desciption",
+        "url": "https://example.com/merino/stocks/nasdaq",
+        "keywords": ["NASDAQ"],
+        "score": 0.24
+    })
+}
+
+pub fn stock_apple() -> JsonValue {
+    json!({
+        "category": "stocks",
+        "id": "appl",
+        "title": "Apple Inc",
+        "description": "AAPL:US",
+        "url": "https://example.com/merino/stocks/appl",
+        "keywords": ["apple inc", "appl"],
+        "score": 0.24
+    })
+}
+
+pub fn stock_group_top_indices() -> JsonValue {
+    json!({
+        "category": "stocks",
+        "title": "Top indices",
+        "description": "Top indices description",
+        "url": "https://example.com/nouse",
+        "items": ["sp500", "nasdaq"],
+        "keywords": ["stocks", "indices", "top indices"],
+        "score": 0.24
+    })
+}
+
+pub fn stock_suggestion(id: &str, title: &str, description: &str, url: &str) -> Suggestion {
+    Suggestion::Realtime {
+        category: "stocks".to_string(),
+        id: id.into(),
+        title: title.into(),
+        description: description.into(),
+        url: url.into(),
+        icon: Some("yelp-favicon-data".into()),
+        icon_mimetype: Some("image/svg+xml".into()),
+        score: 0.24,
+    }
+}
